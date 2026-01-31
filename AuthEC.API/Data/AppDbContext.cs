@@ -10,7 +10,7 @@ namespace AuthEC.API.Data
             
         }
 
-
+        public DbSet<AppUser> AppUsers { get; set; }
 
     }
 }
