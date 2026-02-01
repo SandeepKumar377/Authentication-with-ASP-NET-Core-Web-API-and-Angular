@@ -11,6 +11,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddIdentityApiEndpoints<AppUser>().AddEntityFrameworkStores<AppDbContext>();
 
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredUniqueChars = 1;
+    options.Password.RequiredLength = 5;
+});
+
 builder.Services.AddDbContext<AppDbContext>(options=>
 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -37,18 +47,26 @@ app.MapPost("/api/signup", async (
     UserManager<AppUser> userManager,
     [FromBody] UserRegistrationDTO userRegistrationDTO) =>
 {
-    AppUser user = new AppUser
+    AppUser user = new()
     {
         UserName = userRegistrationDTO.Email,
         Email = userRegistrationDTO.Email,
         FullName = userRegistrationDTO.FullName
     };
-    var result = await userManager.CreateAsync(user, userRegistrationDTO.Password);
+    var result = await userManager.CreateAsync(user, userRegistrationDTO.Password!);
     if (result.Succeeded)
         return Results.Ok(result);
     else
         return Results.BadRequest(result);
 });
+
+app.MapGet("/api/login",async(
+
+    [FromBody] UserLoginDTO userLoginDTO) =>
+{
+
+}
+    )
 
 app.Run();
 
@@ -59,5 +77,12 @@ public class UserRegistrationDTO
     [Required]
     public string? FullName { get; set; }
     [Required]
+    public string? Password { get; set; }
+}
+
+public class UserLoginDTO
+{
+    public string? Email { get; set; }
+
     public string? Password { get; set; }
 }

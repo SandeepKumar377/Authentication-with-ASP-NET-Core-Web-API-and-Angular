@@ -5,18 +5,53 @@
     <div class="mb-3">
         <input type="text" class="form-control bg-body-secondary"
             formControlName="fullName" placeholder="Full Name">
+            @if(hasDisplayableError('fullName') && form.controls.fullName.hasError('required')) {
+            <div class="text-danger mt-1">
+                Full Name is required.
+            </div>
+            }
     </div>
     <div class="mb-3">
         <input type="email" class="form-control bg-body-secondary"
             formControlName="email" placeholder="Email">
+            @if(hasDisplayableError('email') && form.controls.email.hasError('required')) {
+            <div class="text-danger mt-1">
+                Email is required.
+            </div>
+            }
+            @if(hasDisplayableError('email') && form.controls.email.hasError('email')) {
+            <div class="text-danger mt-1">
+                Please enter a valid email address.
+            </div>
+            }
     </div>
     <div class="mb-3">
         <input type="password" class="form-control bg-body-secondary"
             formControlName="password" placeholder="Password">
+            @if(hasDisplayableError('password') && form.controls.password.errors?.['required']) {
+            <div class="text-danger mt-1">
+                Password is required.
+            </div>
+            }
+            @if(hasDisplayableError('password') && form.controls.password.hasError('minlength')) {
+            <div class="text-danger mt-1">
+                Password must be at least 6 characters long.
+            </div>
+            }
+            @if(hasDisplayableError('password') && form.controls.password.hasError('pattern')) {
+            <div class="text-danger mt-1">
+                Password must contain at least one special character.
+            </div>
+            }
     </div>
     <div class="mb-3">
         <input type="password" class="form-control bg-body-secondary"
             formControlName="confirmPassword" placeholder="Confirm Password">
+            @if(hasDisplayableError('confirmPassword') && form.controls.confirmPassword.errors?.['mismatch']) {
+            <div class="text-danger mt-1">
+                Passwords do not match.
+            </div> 
+            }
     </div>
     <button type="submit" class="btn btn-primary w-100">Register</button>
 </form>
