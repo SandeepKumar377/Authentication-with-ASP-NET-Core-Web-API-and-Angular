@@ -29,7 +29,7 @@ export class Registration {
   passwordMatchValidator(form: any) {
     const password = form.get('password')?.value;
     const confirmPassword = form.get('confirmPassword')?.value;
-    if (password && confirmPassword && password.value !== confirmPassword.value) {
+    if (password && confirmPassword && password !== confirmPassword) {
       form.get('confirmPassword')?.setErrors({ mismatch: true });
     } else {
       form.get('confirmPassword')?.setErrors(null);
