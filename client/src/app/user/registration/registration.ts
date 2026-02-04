@@ -1,9 +1,12 @@
 import { Component } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FirstKeyPipe } from '../../shared/pipes/first-key-pipe';
+import { AuthService } from '../../shared/services/auth-service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-registration',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, FirstKeyPipe],
   templateUrl: './registration.html',
   styleUrl: './registration.css',
 })
@@ -11,7 +14,10 @@ export class Registration {
 
   form: any;
 
-  constructor(public formBuilder: FormBuilder) { }
+  constructor(public formBuilder: FormBuilder,
+    private authService: AuthService,
+    private toastr: ToastrService
+  ) { }
 
   isSubmitted: boolean = false;
 
@@ -21,9 +27,9 @@ export class Registration {
       fullName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required,
-      Validators.minLength(6),
-      Validators.pattern(/(?=.*[^a-zA-Z0-9 ])/)]],
-      confirmPassword: ['']
+      Validators.minLength(5),
+        // Validators.pattern(/(?=.*[^a-zA-Z0-9 ])/)
+      ]], confirmPassword: ['']
     }, { validators: this.passwordMatchValidator });
   }
   passwordMatchValidator(form: any) {
@@ -39,10 +45,45 @@ export class Registration {
 
   onSubmit() {
     this.isSubmitted = true;
-    if (this.form.invalid) {
-      return;
+    if (this.form.valid) {
+      console.log('Form Values:', this.form.value);
+      this.authService.registerUser(this.form.value).subscribe({
+        next: (response: any) => {
+          if (response && response.succeeded) {
+            this.form.reset();
+            this.isSubmitted = false;
+            this.toastr.success('User registered successfully');
+            console.log('User registered successfully', response);
+          } else {
+            this.toastr.error('Registration failed');
+            console.error('Registration failed:', response);
+          }
+        },
+        error: (error) => {
+          if (error.error || error.error.errors) {
+            error.error.errors.forEach((error: any) => {
+              switch (error.code) {
+                case 'DuplicateUserName':
+                  this.toastr.error('Email is already in use');
+                  break;
+                case 'PasswordTooShort':
+                  this.toastr.error('Password must be at least 6 characters long');
+                  break;
+                case 'PasswordRequiresNonAlphanumeric':
+                  this.toastr.error('Password must contain at least one special character');
+                  break;
+                default:
+                  this.toastr.error(error.description);
+              }
+            });
+          }
+          else {
+            this.toastr.error('An unexpected error occurred');
+            console.error('Error registering user:', error);
+          }
+        }
+      });
     }
-    console.log(this.form.value);
   }
 
   hasDisplayableError(controlName: string): boolean {

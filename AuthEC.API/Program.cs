@@ -17,7 +17,7 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequireLowercase = false;
     options.Password.RequireUppercase = false;
     options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequiredUniqueChars = 1;
+    options.Password.RequiredUniqueChars = 0;
     options.Password.RequiredLength = 5;
 });
 
@@ -34,6 +34,15 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+#region CORS
+app.UseCors(policy =>
+{
+    policy.AllowAnyHeader();
+    policy.AllowAnyMethod();
+    policy.WithOrigins("http://localhost:4200");
+});
+#endregion
 
 app.UseHttpsRedirection();
 
@@ -59,14 +68,6 @@ app.MapPost("/api/signup", async (
     else
         return Results.BadRequest(result);
 });
-
-app.MapGet("/api/login",async(
-
-    [FromBody] UserLoginDTO userLoginDTO) =>
-{
-
-}
-    )
 
 app.Run();
 
