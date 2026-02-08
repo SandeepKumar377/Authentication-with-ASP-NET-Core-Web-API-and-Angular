@@ -1,8 +1,11 @@
 using AuthEC.API.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.ComponentModel.DataAnnotations;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +26,36 @@ builder.Services.Configure<IdentityOptions>(options =>
 
 builder.Services.AddDbContext<AppDbContext>(options=>
 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+#region JWT configuration (minimal / dev-friendly default)
+
+var jwtSection = builder.Configuration.GetSection("Jwt");
+var jwtKey = jwtSection["Key"] ?? "SuperSecretKeyForDevOnlyChangeMe!";
+var jwtIssuer = jwtSection["Issuer"] ?? "AuthEC.API";
+var jwtAudience = jwtSection["Audience"] ?? "AuthEC.Client";
+var jwtExpiryMinutes = int.TryParse(jwtSection["ExpiryMinutes"], out var m) ? m : 60;
+
+var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = "JwtBearer";
+    options.DefaultChallengeScheme = "JwtBearer";
+}).AddJwtBearer("JwtBearer", options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidIssuer = jwtIssuer,
+        ValidateAudience = true,
+        ValidAudience = jwtAudience,
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = signingKey,
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.FromSeconds(30)
+    };
+});
+#endregion
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -45,9 +78,8 @@ app.UseCors(policy =>
 #endregion
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.MapGroup("/api").MapIdentityApi<AppUser>();
@@ -69,6 +101,50 @@ app.MapPost("/api/signup", async (
         return Results.BadRequest(result);
 });
 
+app.MapGet("/api/login", async (
+    UserManager<AppUser> userManager,
+    SignInManager<AppUser> signInManager,
+    [FromBody] UserLoginDTO userLoginDTO) =>
+{
+    var user = await userManager.FindByEmailAsync(userLoginDTO.Email!);
+    if (user == null)
+        return Results.BadRequest("Invalid email or password.");
+    var result = await signInManager.CheckPasswordSignInAsync(user, userLoginDTO.Password!, false);
+    if (!result.Succeeded)
+        return Results.BadRequest("Invalid email or password.");
+    // Generate JWT token
+    var claims = new[]
+    {
+        new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.NameIdentifier, user.Id),
+        new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, user.UserName ?? "")
+    };
+    var tokenDescriptor = new SecurityTokenDescriptor
+    {
+        Subject = new System.Security.Claims.ClaimsIdentity(claims),
+        Expires = DateTime.UtcNow.AddMinutes(jwtExpiryMinutes),
+        Issuer = jwtIssuer,
+        Audience = jwtAudience,
+        SigningCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256Signature)
+    };
+    var tokenHandler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+    var token = tokenHandler.CreateToken(tokenDescriptor);
+    var jwtToken = tokenHandler.WriteToken(token);
+    return Results.Ok(new { Token = jwtToken });
+});
+
+app.MapGet("/api/users", async (UserManager<AppUser> userManager) =>
+{
+    var users = await userManager.Users
+        .Select(u => new UserDTO
+        {
+            FullName = u.FullName,
+            Email = u.Email
+        })
+        .ToListAsync();
+
+    return Results.Ok(users);
+});
+
 app.Run();
 
 public class UserRegistrationDTO
@@ -83,7 +159,15 @@ public class UserRegistrationDTO
 
 public class UserLoginDTO
 {
+    [Required]
     public string? Email { get; set; }
 
+    [Required]
     public string? Password { get; set; }
+}
+
+public class UserDTO
+{
+    public string? FullName { get; set; }
+    public string? Email { get; set; }
 }
