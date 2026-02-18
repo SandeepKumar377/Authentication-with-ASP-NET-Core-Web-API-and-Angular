@@ -1,0 +1,12 @@
+<div class="mb-4 h2 text-success">
+    Login
+</div>
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="mb-3">
+        <input type="email" class="form-control bg-body-secondary" formControlName="email" placeholder="Email">
+    </div>
+    <div class="mb-3">
+        <input type="password" class="form-control bg-body-secondary" formControlName="password" placeholder="Password">
+    </div>
+    <button type="submit" class="btn btn-primary w-100">Login</button>
+</form>
