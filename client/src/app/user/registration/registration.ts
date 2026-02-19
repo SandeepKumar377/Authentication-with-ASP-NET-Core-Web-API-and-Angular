@@ -3,10 +3,11 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FirstKeyPipe } from '../../shared/pipes/first-key-pipe';
 import { AuthService } from '../../shared/services/auth-service';
 import { ToastrService } from 'ngx-toastr';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-registration',
-  imports: [ReactiveFormsModule, FirstKeyPipe],
+  imports: [ReactiveFormsModule, FirstKeyPipe, RouterLink],
   templateUrl: './registration.html',
   styleUrl: './registration.css',
 })

@@ -1,6 +1,7 @@
 <div class="mb-4 h2 text-success">
     Sign Up
 </div>
+
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <div class="mb-3">
         <input type="text" class="form-control bg-body-secondary" formControlName="fullName" placeholder="Full Name">
@@ -50,4 +51,7 @@
         }
     </div>
     <button type="submit" class="btn btn-primary w-100">Register</button>
+    <div class="mt-2">
+        Already have an account? <a routerLink="/signin">Login</a>
+    </div>
 </form>

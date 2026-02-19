@@ -4,9 +4,22 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <div class="mb-3">
         <input type="email" class="form-control bg-body-secondary" formControlName="email" placeholder="Email">
+        @if(hasDisplayableError('email') && form.controls.email.hasError('required')) {
+        <div class="text-danger mt-1">
+            Email is required.
+        </div>
+        }
     </div>
     <div class="mb-3">
         <input type="password" class="form-control bg-body-secondary" formControlName="password" placeholder="Password">
+        @if(hasDisplayableError('password') && form.controls.password.hasError('required')) {
+        <div class="text-danger mt-1">
+            Password is required.
+        </div>
+        }
     </div>
     <button type="submit" class="btn btn-primary w-100">Login</button>
+    <div class="mt-2">
+        Don't have an account? <a routerLink="/signup">Register</a>
+    </div>
 </form>
