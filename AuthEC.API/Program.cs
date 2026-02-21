@@ -1,10 +1,13 @@
 using AuthEC.API.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.ComponentModel.DataAnnotations;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,29 +31,28 @@ builder.Services.AddDbContext<AppDbContext>(options=>
 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 #region JWT configuration (minimal / dev-friendly default)
-
-var jwtSection = builder.Configuration.GetSection("Jwt");
-var jwtKey = jwtSection["Key"] ?? "SuperSecretKeyForDevOnlyChangeMe!";
-var jwtIssuer = jwtSection["Issuer"] ?? "AuthEC.API";
-var jwtAudience = jwtSection["Audience"] ?? "AuthEC.Client";
-var jwtExpiryMinutes = int.TryParse(jwtSection["ExpiryMinutes"], out var m) ? m : 60;
-
-var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+var jwtKey = builder.Configuration["JWT:JWTSecret"];
+var jwtIssuer = builder.Configuration["JWT:Issuer"];
+var jwtAudience = builder.Configuration["JWT:Audience"];
+int expiryMinutes = int.TryParse(builder.Configuration["Jwt:ExpiryMinutes"], out var m) ? m : 60;
+var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey!));
 
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = "JwtBearer";
     options.DefaultChallengeScheme = "JwtBearer";
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer("JwtBearer", options =>
 {
+    options.SaveToken = false;
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuer = true,
-        ValidIssuer = jwtIssuer,
-        ValidateAudience = true,
-        ValidAudience = jwtAudience,
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = signingKey,
+        ValidIssuer = jwtIssuer,
+        ValidAudience = jwtAudience,
+        ValidateIssuer = true,
+        ValidateAudience = true,
         ValidateLifetime = true,
         ClockSkew = TimeSpan.FromSeconds(30)
     };
@@ -101,7 +103,7 @@ app.MapPost("/api/signup", async (
         return Results.BadRequest(result);
 });
 
-app.MapGet("/api/login", async (
+app.MapGet("/api/signin", async (
     UserManager<AppUser> userManager,
     SignInManager<AppUser> signInManager,
     [FromBody] UserLoginDTO userLoginDTO) =>
@@ -113,20 +115,18 @@ app.MapGet("/api/login", async (
     if (!result.Succeeded)
         return Results.BadRequest("Invalid email or password.");
     // Generate JWT token
-    var claims = new[]
-    {
-        new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.NameIdentifier, user.Id),
-        new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Name, user.UserName ?? "")
-    };
     var tokenDescriptor = new SecurityTokenDescriptor
     {
-        Subject = new System.Security.Claims.ClaimsIdentity(claims),
-        Expires = DateTime.UtcNow.AddMinutes(jwtExpiryMinutes),
+        Subject = new ClaimsIdentity(new Claim[]
+        {
+            new Claim("UserId",user.Id.ToString())
+        }),
+        Expires = DateTime.UtcNow.AddMinutes(expiryMinutes),
         Issuer = jwtIssuer,
         Audience = jwtAudience,
         SigningCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256Signature)
     };
-    var tokenHandler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+    var tokenHandler = new JwtSecurityTokenHandler();
     var token = tokenHandler.CreateToken(tokenDescriptor);
     var jwtToken = tokenHandler.WriteToken(token);
     return Results.Ok(new { Token = jwtToken });
