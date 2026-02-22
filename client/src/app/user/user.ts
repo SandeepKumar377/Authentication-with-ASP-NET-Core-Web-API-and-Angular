@@ -5,7 +5,7 @@ import { RouterOutlet } from '@angular/router';
   selector: 'app-user',
   imports: [RouterOutlet],
   templateUrl: './user.html',
-  styleUrl: './user.css',
+  styleUrl: './user.css'
 })
 export class User {
 
