@@ -11,7 +11,10 @@ export class AuthService {
   baseUrl: string = 'https://localhost:7175/api';
 
   registerUser(user: any) {
-    console.log('Registering user with data:', user);
     return this.http.post(`${this.baseUrl}/signup`, user);
+  }
+
+  userSignIn(credentials: any) {
+    return this.http.post(`${this.baseUrl}/signin`, credentials);
   }
 }

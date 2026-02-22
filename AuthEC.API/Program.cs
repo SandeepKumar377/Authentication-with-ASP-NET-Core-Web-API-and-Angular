@@ -103,7 +103,7 @@ app.MapPost("/api/signup", async (
         return Results.BadRequest(result);
 });
 
-app.MapGet("/api/signin", async (
+app.MapPost("/api/signin", async (
     UserManager<AppUser> userManager,
     SignInManager<AppUser> signInManager,
     [FromBody] UserLoginDTO userLoginDTO) =>
