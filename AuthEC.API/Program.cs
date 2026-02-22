@@ -1,6 +1,5 @@
 using AuthEC.API.Data;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
+using AuthEC.API.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,49 +14,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
-builder.Services.AddIdentityApiEndpoints<AppUser>().AddEntityFrameworkStores<AppDbContext>();
-
-builder.Services.Configure<IdentityOptions>(options =>
-{
-    options.Password.RequireDigit = false;
-    options.Password.RequireLowercase = false;
-    options.Password.RequireUppercase = false;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequiredUniqueChars = 0;
-    options.Password.RequiredLength = 5;
-});
-
-builder.Services.AddDbContext<AppDbContext>(options=>
-options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-#region JWT configuration (minimal / dev-friendly default)
-var jwtKey = builder.Configuration["JWT:JWTSecret"];
-var jwtIssuer = builder.Configuration["JWT:Issuer"];
-var jwtAudience = builder.Configuration["JWT:Audience"];
-int expiryMinutes = int.TryParse(builder.Configuration["Jwt:ExpiryMinutes"], out var m) ? m : 60;
-var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey!));
-
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = "JwtBearer";
-    options.DefaultChallengeScheme = "JwtBearer";
-    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer("JwtBearer", options =>
-{
-    options.SaveToken = false;
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = signingKey,
-        ValidIssuer = jwtIssuer,
-        ValidAudience = jwtAudience,
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ClockSkew = TimeSpan.FromSeconds(30)
-    };
-});
-#endregion
+builder.Services
+    .InjectDBContext(builder.Configuration)
+    .AddIdentityHandlersAndStores()
+    .ConfigureIdentityOptions()
+    .AddIdentityAuth(builder.Configuration);
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -121,10 +82,10 @@ app.MapPost("/api/signin", async (
         {
             new Claim("UserId",user.Id.ToString())
         }),
-        Expires = DateTime.UtcNow.AddMinutes(expiryMinutes),
-        Issuer = jwtIssuer,
-        Audience = jwtAudience,
-        SigningCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256Signature)
+        Expires = DateTime.UtcNow.AddMinutes(int.TryParse(builder.Configuration["Jwt:ExpiryMinutes"], out var m) ? m : 60),
+        Issuer = builder.Configuration["JWT:Issuer"],
+        Audience = builder.Configuration["JWT:Audience"],
+        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:JWTSecret"]!)), SecurityAlgorithms.HmacSha256Signature)
     };
     var tokenHandler = new JwtSecurityTokenHandler();
     var token = tokenHandler.CreateToken(tokenDescriptor);
