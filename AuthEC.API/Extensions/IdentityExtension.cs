@@ -56,5 +56,12 @@ namespace AuthEC.API.Extensions
             return services;
         }
         #endregion
+
+        public static WebApplication AddIdentityMiddleware(this WebApplication app)
+        {
+            app.UseAuthentication();
+            app.UseAuthorization();
+            return app;
+        }
     }
 }

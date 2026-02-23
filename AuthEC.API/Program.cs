@@ -20,30 +20,17 @@ builder.Services
     .ConfigureIdentityOptions()
     .AddIdentityAuth(builder.Configuration);
 
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddSwaggerExplorer();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
-
-#region CORS
-app.UseCors(policy =>
-{
-    policy.AllowAnyHeader();
-    policy.AllowAnyMethod();
-    policy.WithOrigins("http://localhost:4200");
-});
-#endregion
+app.ConfigureSwaggerExplorer()
+    .ConfigureCORS(builder.Configuration)
+    .AddIdentityMiddleware();
 
 app.UseHttpsRedirection();
-app.UseAuthentication();
-app.UseAuthorization();
 app.MapControllers();
+
 
 app.MapGroup("/api").MapIdentityApi<AppUser>();
 
