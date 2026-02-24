@@ -1,4 +1,6 @@
-﻿namespace AuthEC.API.Extensions
+﻿using AuthEC.API.Data;
+
+namespace AuthEC.API.Extensions
 {
     public static class AppConfigExtension
     {
@@ -11,6 +13,11 @@
                 policy.WithOrigins("http://localhost:4200");
             });
             return app;
+        }
+        public static IServiceCollection AddAppConfigure(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.Configure<AppSettings>(configuration.GetSection("JWT"));
+            return services;
         }
     }
 }
