@@ -3,7 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FirstKeyPipe } from '../../shared/pipes/first-key-pipe';
 import { AuthService } from '../../shared/services/auth-service';
 import { ToastrService } from 'ngx-toastr';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-registration',
@@ -17,12 +17,16 @@ export class Registration {
 
   constructor(public formBuilder: FormBuilder,
     private authService: AuthService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private router: Router
   ) { }
 
   isSubmitted: boolean = false;
 
   ngOnInit(): void {
+    if (this.authService.isLoggedIn()) {
+      this.router.navigateByUrl('/dashboard');
+    }
 
     this.form = this.formBuilder.nonNullable.group({
       fullName: ['', Validators.required],

@@ -23,10 +23,15 @@ export class Login {
   ) { }
 
   ngOnInit(): void {
+    if (this.authService.isLoggedIn()) {
+      this.router.navigateByUrl('/dashboard');
+    }
+
     this.form = this.formBuilder.group({
       email: ['', [Validators.required]],
       password: ['', [Validators.required]]
     })
+
   }
 
   onSubmit() {
@@ -37,7 +42,7 @@ export class Login {
           if (response) {
             this.form.reset();
             this.isSubmitted = false;
-            localStorage.setItem('token', response.token);
+            this.authService.saveToken(response.token);
             this.router.navigateByUrl('/dashboard');
             this.toastr.success('User logged in successfully');
             console.log('Login successful:', response);

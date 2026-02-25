@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from '../shared/services/auth-service';
 
 @Component({
   selector: 'app-dashboard',
@@ -8,12 +9,14 @@ import { Router } from '@angular/router';
   styleUrl: './dashboard.css',
 })
 export class Dashboard {
-  constructor(private router: Router) {
+  constructor(private router: Router,
+    private authService: AuthService
+  ) {
 
   }
 
   logout() {
-    localStorage.removeItem('token');
+    this.authService.deleteToken();
     this.router.navigateByUrl('/signin');
   }
 }
