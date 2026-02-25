@@ -25,7 +25,9 @@ app.UseHttpsRedirection();
 app.MapControllers();
 
 app.MapGroup("/api").MapIdentityApi<AppUser>();
-app.MapGroup("/api").MapIdentityUserEndpoints();
+app.MapGroup("/api")
+    .MapIdentityUserEndpoints()
+    .MapAccountEndpoints();
 
 app.Run();
 

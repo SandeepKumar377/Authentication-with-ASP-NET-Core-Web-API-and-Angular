@@ -72,8 +72,6 @@ namespace AuthEC.API.Controllers
                         new Claim("UserId",userId.ToString())
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(appSettings.Value.ExpiryMinutes),
-                Issuer = appSettings.Value.Issuer,
-                Audience = appSettings.Value.Audience,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(appSettings.Value.JWTSecret!)), SecurityAlgorithms.HmacSha256Signature)
             };
             var tokenHandler = new JwtSecurityTokenHandler();
