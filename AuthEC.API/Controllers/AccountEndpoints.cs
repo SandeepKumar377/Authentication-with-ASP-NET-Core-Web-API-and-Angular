@@ -1,6 +1,8 @@
 ﻿using AuthEC.API.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace AuthEC.API.Controllers
 {
@@ -13,9 +15,15 @@ namespace AuthEC.API.Controllers
         }
 
         [Authorize]
-        private static string GetUserProfile()
+        private static async Task<IResult> GetUserProfile(ClaimsPrincipal claims, UserManager<AppUser> userManager)
         {
-            return "This is a protected endpoint. You are authenticated.";
+            string userId= claims.Claims.First(x=>x.Type== "UserId").Value;
+            var userDetails = await userManager.FindByIdAsync(userId);
+            return Results.Ok(new
+            {
+                Email= userDetails?.Email,
+                FullName= userDetails?.FullName
+            });
         }
     }
 }

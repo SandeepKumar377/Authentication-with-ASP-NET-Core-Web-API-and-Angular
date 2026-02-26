@@ -1,5 +1,6 @@
 ﻿using AuthEC.API.Data;
 using AuthEC.API.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +31,7 @@ namespace AuthEC.API.Controllers
             return app;
         }
 
+        [AllowAnonymous]
         private static async Task<IResult> CreateUser(
             UserManager<AppUser> userManager,
             [FromBody] UserRegistrationDTO userRegistrationDTO)
@@ -46,6 +48,8 @@ namespace AuthEC.API.Controllers
             else
                 return Results.BadRequest(result);
         }
+
+        [AllowAnonymous]
         private static async Task<IResult> SigninUser(
             UserManager<AppUser> userManager,
             SignInManager<AppUser> signInManager,
