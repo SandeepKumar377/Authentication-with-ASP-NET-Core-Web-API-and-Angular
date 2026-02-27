@@ -1,0 +1,47 @@
+[
+  {
+    "email": "sandeep@gmail.com",
+    "fullName": "Sandeep Kumar",
+    "password": "sandeep123",
+    "role": "Admin",
+    "gender": "Male",
+    "libraryId": 123,
+    "dob": "1996-07-01"
+  },
+  {
+    "email": "kumar@gmail.com",
+    "fullName": "Kumar",
+    "password": "kumar123",
+    "role": "Student",
+    "gender": "Male",
+    "dob": "2020-02-27",
+    "libraryId": 456
+  },
+  {
+    "email": "shivangi@gmail.com",
+    "fullName": "Shivangi",
+    "password": "shivangi123",
+    "role": "Teacher",
+    "dob": "2000-02-02",
+    "gender": "Female",
+    "libraryId": 789
+  },
+  {
+    "email": "Elma@gmail.com",
+    "fullName": "Elma",
+    "password": "elma123",
+    "role": "Student",
+    "dob": "2001-02-27",
+    "gender": "Female",
+    "libraryId": 321
+  },
+  {
+    "email": "payal@gmail.com",
+    "fullName": "Payal",
+    "password": "payal123",
+    "role": "Teacher",
+    "dob": "1995-03-06",
+    "gender": "Female",
+    "libraryId": 654
+  }
+]

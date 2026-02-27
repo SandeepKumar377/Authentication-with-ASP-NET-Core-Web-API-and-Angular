@@ -40,9 +40,14 @@ namespace AuthEC.API.Controllers
             {
                 UserName = userRegistrationDTO.Email,
                 Email = userRegistrationDTO.Email,
-                FullName = userRegistrationDTO.FullName
+                FullName = userRegistrationDTO.FullName,
+                Gender = userRegistrationDTO.Gender,
+                DOB = userRegistrationDTO.DOB,
+                LibraryId = userRegistrationDTO.LibraryId
             };
             var result = await userManager.CreateAsync(user, userRegistrationDTO.Password!);
+            if(userRegistrationDTO.Role !=null)
+                await userManager.AddToRoleAsync(user, userRegistrationDTO.Role!);
             if (result.Succeeded)
                 return Results.Ok(result);
             else
