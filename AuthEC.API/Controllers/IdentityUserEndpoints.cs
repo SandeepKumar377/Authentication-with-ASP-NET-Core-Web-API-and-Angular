@@ -16,7 +16,7 @@ namespace AuthEC.API.Controllers
     {
         public static IEndpointRouteBuilder MapIdentityUserEndpoints(this IEndpointRouteBuilder app)
         {
-            app.MapPost("signup", CreateUser);
+            app.MapPost("signup", SignupUser);
             app.MapPost("signin", SigninUser);
 
             app.MapGet("users", async (UserManager<AppUser> userManager) =>
@@ -32,10 +32,8 @@ namespace AuthEC.API.Controllers
         }
 
         [AllowAnonymous]
-        private static async Task<IResult> CreateUser(
-            UserManager<AppUser> userManager,
-            [FromBody] UserRegistrationDTO userRegistrationDTO)
-            {
+        private static async Task<IResult> SignupUser([FromBody] UserRegistrationDTO userRegistrationDTO, UserManager<AppUser> userManager)
+        {
             AppUser user = new()
             {
                 UserName = userRegistrationDTO.Email,
@@ -55,31 +53,35 @@ namespace AuthEC.API.Controllers
         }
 
         [AllowAnonymous]
-        private static async Task<IResult> SigninUser(
-            UserManager<AppUser> userManager,
-            SignInManager<AppUser> signInManager,
-            [FromBody] UserLoginDTO userLoginDTO,
-            IOptions<AppSettings> appSettings)
-            {
+        private static async Task<IResult> SigninUser([FromBody] UserLoginDTO userLoginDTO, UserManager<AppUser> userManager,
+            SignInManager<AppUser> signInManager, IOptions<AppSettings> appSettings)
+        {
             var user = await userManager.FindByEmailAsync(userLoginDTO.Email!);
             if (user == null)
                 return Results.BadRequest("Invalid email or password.");
             var result = await signInManager.CheckPasswordSignInAsync(user, userLoginDTO.Password!, false);
             if (!result.Succeeded)
                 return Results.BadRequest("Invalid email or password.");
-            
-            return Results.Ok(new { Token = GenerateToken(user.Id,appSettings) });
+            var roles= await userManager.GetRolesAsync(user);
+            ClaimsIdentity claimsIdentity = new ClaimsIdentity(new Claim[]
+            {
+                new Claim("UserId",user.Id.ToString()),
+                new Claim("Gender", user.Gender!.ToString()),
+                new Claim("DOB", user.DOB.ToString()),
+                new Claim(ClaimTypes.Role, string.Join(",",roles))
+            });
+            if(user.LibraryId != null)
+                claimsIdentity.AddClaim(new Claim("libraryId", user.LibraryId.ToString()!));
+
+            return Results.Ok(new { Token = GenerateToken(user.Id, claimsIdentity, appSettings) });
         }
 
-        public static string GenerateToken(string userId, IOptions<AppSettings> appSettings)
+        public static string GenerateToken(string userId, ClaimsIdentity claimsIdentity , IOptions<AppSettings> appSettings)
         {
             // Generate JWT token
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                        new Claim("UserId",userId.ToString())
-                }),
+                Subject = claimsIdentity,
                 Expires = DateTime.UtcNow.AddMinutes(appSettings.Value.ExpiryMinutes),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(appSettings.Value.JWTSecret!)), SecurityAlgorithms.HmacSha256Signature)
             };
