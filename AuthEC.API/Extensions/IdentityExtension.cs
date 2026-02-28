@@ -54,7 +54,7 @@ namespace AuthEC.API.Extensions
                 options.FallbackPolicy = new AuthorizationPolicyBuilder()
                 .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
                 .RequireAuthenticatedUser()
-                .Build();
+                .Build();               
             });
             return services;
         }
