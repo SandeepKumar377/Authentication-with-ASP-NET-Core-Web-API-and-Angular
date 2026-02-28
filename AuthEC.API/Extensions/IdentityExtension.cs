@@ -58,7 +58,7 @@ namespace AuthEC.API.Extensions
 
                 options.AddPolicy("HasLibraryId",policy=>policy.RequireClaim("LibraryId"));
                 options.AddPolicy("Female", policy=>policy.RequireClaim("Gender","Female"));
-                options.AddPolicy("User10", policy => policy.RequireAssertion(context =>
+                options.AddPolicy("Under10", policy => policy.RequireAssertion(context =>
                     DateTime.Today.Year - DateTime.Parse(context.User.Claims.First(x => x.Type == "DOB").Value).Year < 10
                 ));
             });

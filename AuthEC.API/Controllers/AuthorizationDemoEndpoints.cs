@@ -25,7 +25,7 @@ namespace AuthEC.API.Controllers
                 return Results.Ok("Your maternity leave is approved!");
             });
            
-            app.MapGet("User10Only", [Authorize(Policy = "User10")] () =>
+            app.MapGet("Under10Only", [Authorize(Policy = "Under10")] () =>
             {
                 return Results.Ok("This endpoint is only accessible to users whose DOB claim indicates they are older than 10 years.");
             });
