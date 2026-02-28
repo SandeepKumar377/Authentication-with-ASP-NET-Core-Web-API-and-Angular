@@ -54,7 +54,13 @@ namespace AuthEC.API.Extensions
                 options.FallbackPolicy = new AuthorizationPolicyBuilder()
                 .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
                 .RequireAuthenticatedUser()
-                .Build();               
+                .Build();
+
+                options.AddPolicy("HasLibraryId",policy=>policy.RequireClaim("LibraryId"));
+                options.AddPolicy("Female", policy=>policy.RequireClaim("Gender","Female"));
+                options.AddPolicy("User10", policy => policy.RequireAssertion(context =>
+                    DateTime.Today.Year - DateTime.Parse(context.User.Claims.First(x => x.Type == "DOB").Value).Year < 10
+                ));
             });
             return services;
         }

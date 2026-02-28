@@ -21,10 +21,14 @@ namespace AuthEC.API.Controllers
 
             app.MapGet("users", async (UserManager<AppUser> userManager) =>
             {
+                //(DateTime.Today).Year - (DateTime.Parse(context.User.Claims.First(x => x.Type == "DOB").Value)).Year
                 var users = await userManager.Users.Select(u => new UserDTO
                 {
                     FullName = u.FullName,
-                    Email = u.Email
+                    Email = u.Email,
+                    DOB = u.DOB.ToString(),
+                    Age = (DateTime.Today).Year - (DateTime.Parse(u.DOB.ToString())).Year,
+                    Gender= u.Gender
                 }).ToListAsync();
                 return Results.Ok(users);
             });
