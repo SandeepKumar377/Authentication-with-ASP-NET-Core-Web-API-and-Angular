@@ -35,8 +35,4 @@ export class Dashboard {
     });
   }
 
-  logout() {
-    this.authService.deleteToken();
-    this.router.navigateByUrl('/signin');
-  }
 }

@@ -1,0 +1,27 @@
+<div id="main">
+    <nav class="navbar bg-body-tertiary bg-dark" data-bs-theme="dark">
+        <div class="container-fluid">
+            <a class="navbar-brand">Navbar</a>
+            <form class="d-flex" role="search">
+                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
+                <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
+            <span class="navbar-text me-3">
+                Hi, {{ "User" }}!
+            </span>
+            <button class="btn btn-outline-danger" (click)="logout()">Logout</button>
+        </div>
+    </nav>
+    <div class="row">
+        <div class="col-md-3">
+            <ul class="list-group">
+                <li class="list-group-item"><a class="nav-link" routerLink="dashboard">Dashboard</a></li>
+                <li class="list-group-item"><a class="nav-link" routerLink="admin-only">Admin Only</a></li>
+                <li class="list-group-item"><a class="nav-link" routerLink="admin-or-teacher">Admin or Teacher</a></li>
+            </ul>
+        </div>
+        <div class="col-md-9">
+            <router-outlet></router-outlet>
+        </div>
+    </div>
+</div>

@@ -31,4 +31,10 @@ export class AuthService {
   getToken() {
     return localStorage.getItem(TOKET_KEY);
   }
+  getUserClaims() {
+    const token = this.getToken();
+    if (!token) return null;
+    window.atob(token.split('.')[1]);
+    return JSON.parse(window.atob(token.split('.')[1]));
+  }
 }
