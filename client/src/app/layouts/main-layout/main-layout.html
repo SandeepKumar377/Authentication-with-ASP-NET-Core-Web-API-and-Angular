@@ -7,7 +7,7 @@
                 <button class="btn btn-outline-success" type="submit">Search</button>
             </form>
             <span class="navbar-text me-3">
-                Hi, {{ "User" }}!
+                Hi, {{ userEmail }}!
             </span>
             <button class="btn btn-outline-danger" (click)="logout()">Logout</button>
         </div>
@@ -15,9 +15,24 @@
     <div class="row">
         <div class="col-md-3">
             <ul class="list-group">
-                <li class="list-group-item"><a class="nav-link" routerLink="dashboard">Dashboard</a></li>
-                <li class="list-group-item"><a class="nav-link" routerLink="admin-only">Admin Only</a></li>
-                <li class="list-group-item"><a class="nav-link" routerLink="admin-or-teacher">Admin or Teacher</a></li>
+                <li class="list-group-item">
+                    <a class="nav-link" routerLink="dashboard">Dashboard</a>
+                </li>
+                <li class="list-group-item" [appHideIfClaimsNotMet]="claimRequired.adminOnly">
+                    <a class="nav-link" routerLink="admin-only">Admin Only</a>
+                </li>
+                <li class="list-group-item" [appHideIfClaimsNotMet]="claimRequired.adminOrTeacher">
+                    <a class="nav-link" routerLink="admin-or-teacher">Admin or Teacher</a>
+                </li>
+                <li class="list-group-item" [appHideIfClaimsNotMet]="claimRequired.under10Only">
+                    <a class="nav-link" routerLink="under-10-only">Under 10 only</a>
+                </li>
+                <li class="list-group-item" [appHideIfClaimsNotMet]="claimRequired.applyForMaternityLeave">
+                    <a class="nav-link" routerLink="apply-for-maternity-leave">Apply For Maternity Leave</a>
+                </li>
+                <li class="list-group-item" [appHideIfClaimsNotMet]="claimRequired.hasLibraryId">
+                    <a class="nav-link" routerLink="library-member-only">Library Member Only</a>
+                </li>
             </ul>
         </div>
         <div class="col-md-9">

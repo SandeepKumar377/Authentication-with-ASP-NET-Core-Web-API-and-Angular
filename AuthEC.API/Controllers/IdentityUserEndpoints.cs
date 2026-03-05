@@ -69,9 +69,10 @@ namespace AuthEC.API.Controllers
             var roles= await userManager.GetRolesAsync(user);
             ClaimsIdentity claimsIdentity = new ClaimsIdentity(new Claim[]
             {
-                new Claim("UserId",user.Id.ToString()),
-                new Claim("Gender", user.Gender!.ToString()),
-                new Claim("DOB", user.DOB.ToString()),
+                new Claim("userId",user.Id.ToString()),
+                new Claim("email", user.Email!),
+                new Claim("gender", user.Gender!.ToString()),
+                new Claim("dob", user.DOB.ToString()),
                 new Claim(ClaimTypes.Role, string.Join(",",roles))
             });
             if(user.LibraryId != null)

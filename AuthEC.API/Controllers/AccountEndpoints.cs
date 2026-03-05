@@ -17,7 +17,7 @@ namespace AuthEC.API.Controllers
         [Authorize]
         private static async Task<IResult> GetUserProfile(ClaimsPrincipal claims, UserManager<AppUser> userManager)
         {
-            string userId= claims.Claims.First(x=>x.Type== "UserId").Value;
+            string userId= claims.Claims.First(x=>x.Type== "userId").Value;
             var userDetails = await userManager.FindByIdAsync(userId);
             return Results.Ok(new
             {

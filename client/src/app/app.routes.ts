@@ -11,6 +11,7 @@ import { Under10Only } from './authorizeDemo/under10-only/under10-only';
 import { ApplyForMaternityLeave } from './authorizeDemo/apply-for-maternity-leave/apply-for-maternity-leave';
 import { MainLayout } from './layouts/main-layout/main-layout';
 import { Forbidden } from './forbidden/forbidden';
+import { claimRequired } from './shared/utils/claimRequire-utils';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'signin', pathMatch: 'full' },
@@ -28,20 +29,23 @@ export const routes: Routes = [
             { path: 'dashboard', component: Dashboard },
             {
                 path: 'admin-only', component: AdminOnly,
-                data: { claimRequired: (c: any) => c.role === 'Admin' }
+                data: { claimRequired: claimRequired.adminOnly }
             },
             {
                 path: 'admin-or-teacher', component: AdminOrTeacher,
-                data: { claimRequired: (c: any) => c.role === 'Admin' || c.role === 'Teacher' }
+                data: { claimRequired: claimRequired.adminOrTeacher }
             },
             {
-                path: 'library-member-only', component: LibraryMemberOnly
+                path: 'library-member-only', component: LibraryMemberOnly,
+                data: { claimRequired: claimRequired.hasLibraryId }
             },
             {
-                path: 'under-10-only', component: Under10Only
+                path: 'under-10-only', component: Under10Only,
+                data: { claimRequired: claimRequired.under10Only }
             },
             {
-                path: 'apply-for-maternity-leave', component: ApplyForMaternityLeave
+                path: 'apply-for-maternity-leave', component: ApplyForMaternityLeave,
+                data: { claimRequired: claimRequired.applyForMaternityLeave }
             },
             { path: 'forbidden', component: Forbidden },
         ]
