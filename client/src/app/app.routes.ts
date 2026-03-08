@@ -12,6 +12,7 @@ import { ApplyForMaternityLeave } from './authorizeDemo/apply-for-maternity-leav
 import { MainLayout } from './layouts/main-layout/main-layout';
 import { Forbidden } from './forbidden/forbidden';
 import { claimRequired } from './shared/utils/claimRequire-utils';
+import { UserList } from './authorizeDemo/user-list/user-list';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'signin', pathMatch: 'full' },
@@ -29,6 +30,10 @@ export const routes: Routes = [
             { path: 'dashboard', component: Dashboard },
             {
                 path: 'admin-only', component: AdminOnly,
+                data: { claimRequired: claimRequired.adminOnly }
+            },
+            {
+                path: 'user-list', component: UserList,
                 data: { claimRequired: claimRequired.adminOnly }
             },
             {

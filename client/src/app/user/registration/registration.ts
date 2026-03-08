@@ -22,6 +22,7 @@ export class Registration {
   ) { }
 
   isSubmitted: boolean = false;
+  isLoading: boolean = false;
 
   ngOnInit(): void {
     if (this.authService.isLoggedIn()) {
@@ -51,20 +52,24 @@ export class Registration {
   onSubmit() {
     this.isSubmitted = true;
     if (this.form.valid) {
+      this.isLoading = true;
       console.log('Form Values:', this.form.value);
       this.authService.registerUser(this.form.value).subscribe({
         next: (response: any) => {
           if (response && response.succeeded) {
             this.form.reset();
             this.isSubmitted = false;
+            this.isLoading = false;
             this.toastr.success('User registered successfully');
             console.log('User registered successfully', response);
           } else {
             this.toastr.error('Registration failed');
+            this.isLoading = false;
             console.error('Registration failed:', response);
           }
         },
         error: (error) => {
+          this.isLoading = false;
           if (error.error || error.error.errors) {
             error.error.errors.forEach((error: any) => {
               switch (error.code) {
@@ -83,6 +88,7 @@ export class Registration {
             });
           }
           else {
+            this.isLoading = false;
             this.toastr.error('An unexpected error occurred');
             console.error('Error registering user:', error);
           }

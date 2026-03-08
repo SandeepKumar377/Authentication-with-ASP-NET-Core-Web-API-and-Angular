@@ -1,0 +1,28 @@
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Date of Birth</th>
+            <th>Age</th>
+            <th>Gender</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Example user data, replace with dynamic data from the service -->
+        @for (user of users; track user.email) {
+            <tr>
+                <td>{{ user.fullName }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.dob }}</td>
+                <td>{{ user.age }}</td>
+                <td>{{ user.gender }}</td>
+            </tr>
+        }
+        <!--  @empty {
+            <tr>
+                <td>No items available.</td>
+            </tr>
+        } -->
+    </tbody>
+</table>

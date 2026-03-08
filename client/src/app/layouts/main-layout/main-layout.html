@@ -33,6 +33,9 @@
                 <li class="list-group-item" [appHideIfClaimsNotMet]="claimRequired.hasLibraryId">
                     <a class="nav-link" routerLink="library-member-only">Library Member Only</a>
                 </li>
+                <li class="list-group-item" [appHideIfClaimsNotMet]="claimRequired.adminOnly">
+                    <a class="nav-link" routerLink="user-list">User List</a>
+                </li>
             </ul>
         </div>
         <div class="col-md-9">

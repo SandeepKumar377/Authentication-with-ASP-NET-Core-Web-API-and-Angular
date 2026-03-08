@@ -15,6 +15,7 @@ export class Login {
 
   form: any;
   isSubmitted: boolean = false;
+  isLoading = false;
 
   constructor(public formBuilder: FormBuilder,
     private authService: AuthService,
@@ -37,21 +38,25 @@ export class Login {
   onSubmit() {
     this.isSubmitted = true;
     if (this.form.valid) {
+      this.isLoading = true;
       this.authService.userSignIn(this.form.value).subscribe({
         next: (response: any) => {
           if (response) {
             this.form.reset();
             this.isSubmitted = false;
+            this.isLoading = false;
             this.authService.saveToken(response.token);
             this.router.navigateByUrl('/dashboard');
             this.toastr.success('User logged in successfully');
             console.log('Login successful:', response);
           } else {
             this.toastr.error('Login failed');
+            this.isLoading = false;
             console.error('Login failed:', response);
           }
         },
         error: err => {
+          this.isLoading = false;
           if (err.status === 401) {
             this.toastr.error('Invalid email or password');
           } else {
@@ -62,6 +67,7 @@ export class Login {
       });
     }
     else {
+
       console.log('Form is invalid');
     }
   }

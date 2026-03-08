@@ -16,4 +16,8 @@ export class UserService {
   getUserProfile() {
     return this.http.get(this.baseUrl + '/UserProfile');
   }
+
+  getUsers() {
+    return this.http.get(this.baseUrl + '/Users');
+  }
 }
