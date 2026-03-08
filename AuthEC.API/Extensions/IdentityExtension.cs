@@ -46,7 +46,7 @@ namespace AuthEC.API.Extensions
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:JWTSecret"]!)),
                     ValidateIssuer = false,
                     ValidateAudience = false,
-                    ClockSkew = TimeSpan.FromSeconds(30)
+                    ClockSkew = TimeSpan.FromSeconds(5)//The framework gives 5 extra seconds before considering the token expired.
                 };
             });
             services.AddAuthorization(options =>

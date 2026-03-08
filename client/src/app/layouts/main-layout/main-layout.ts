@@ -21,7 +21,13 @@ export class MainLayout {
     private router: Router) { }
 
   ngOnInit(): void {
+    if (this.authService.isLoggedIn() && this.authService.isTokenExpired()) {
+      this.authService.deleteToken();
+      this.router.navigateByUrl('/signin');
+      return;
+    }
     const userClaims = this.authService.getUserClaims();
+    console.log(userClaims);
     if (userClaims) {
       this.userEmail = userClaims['email'] || '';
     }

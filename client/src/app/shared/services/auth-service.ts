@@ -37,4 +37,14 @@ export class AuthService {
     window.atob(token.split('.')[1]);
     return JSON.parse(window.atob(token.split('.')[1]));
   }
+  isTokenExpired(): boolean {
+    const token = this.getToken();
+    if (!token) return true;
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const expiry = payload.exp;
+    const now = Math.floor(Date.now() / 1000);
+    console.log(expiry);
+    console.log(now);
+    return now >= expiry;
+  }
 }
