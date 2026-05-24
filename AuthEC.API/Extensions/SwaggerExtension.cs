@@ -44,7 +44,11 @@ namespace AuthEC.API.Extensions
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "AuthEC.API v1"));
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "AuthEC.API v1");
+                    c.RoutePrefix = string.Empty; // optional: makes Swagger UI load at root "/"
+                });
             }
             return app;
         }

@@ -24,6 +24,7 @@ app.ConfigureSwaggerExplorer()
 app.UseHttpsRedirection();
 app.MapControllers();
 
+app.MapGet("/api/env", (IWebHostEnvironment env)=>env.EnvironmentName);
 app.MapGroup("/api").MapIdentityApi<AppUser>();
 app.MapGroup("/api")
     .MapIdentityUserEndpoints()
